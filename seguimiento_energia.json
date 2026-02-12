@@ -1,0 +1,98 @@
+[
+    {
+        "estado_animo": "baja",
+        "tiempo": 2.5,
+        "fecha": "2026-01-28",
+        "hora": "05:27:31"
+    },
+    {
+        "estado_animo": "media",
+        "tiempo": 3.75,
+        "fecha": "2026-01-28",
+        "hora": "05:27:59"
+    },
+    {
+        "estado_animo": "alta",
+        "tiempo": 5,
+        "fecha": "2026-01-28",
+        "hora": "05:28:10"
+    },
+    {
+        "estado_animo": "baja",
+        "tiempo": 2.5,
+        "fecha": "2026-01-28",
+        "hora": "05:47:24"
+    },
+    {
+        "estado_animo": "media",
+        "tiempo": 3.75,
+        "fecha": "2026-01-28",
+        "hora": "05:47:31"
+    },
+    {
+        "estado_animo": "alta",
+        "tiempo": 5,
+        "fecha": "2026-01-28",
+        "hora": "05:47:40"
+    },
+    {
+        "estado_animo": "alta",
+        "tiempo": 5,
+        "fecha": "2026-01-28",
+        "hora": "05:47:47"
+    },
+    {
+        "estado_animo": "alta",
+        "tiempo": 5,
+        "fecha": "2026-01-28",
+        "hora": "05:48:31"
+    },
+    {
+        "estado_animo": "alta",
+        "tiempo": 5,
+        "fecha": "2026-02-11",
+        "hora": "13:16:59"
+    },
+    {
+        "estado_animo": "baja",
+        "tiempo": 2.5,
+        "fecha": "2026-02-11",
+        "hora": "13:35:01"
+    },
+    {
+        "estado_animo": "alta",
+        "tiempo": 5,
+        "fecha": "2026-02-11",
+        "hora": "14:26:43"
+    },
+    {
+        "estado_animo": "media",
+        "tiempo": 3.75,
+        "fecha": "2026-02-11",
+        "hora": "14:27:25"
+    },
+    {
+        "estado_animo": "alta",
+        "tiempo": 5,
+        "fecha": "2026-02-11",
+        "hora": "14:28:30"
+    },
+    {
+        "estado_animo": "alta",
+        "tiempo": 5,
+        "fecha": "2026-02-11",
+        "hora": "14:29:51"
+    },
+    {
+        "estado_animo": "alta",
+        "tiempo": 5,
+        "fecha": "2026-02-11",
+        "hora": "14:30:04"
+    },
+    {
+        "estado_animo": "alta",
+        "tiempo": 5,
+        "fecha": "2026-02-11",
+        "hora": "14:31:35"
+    }
+]
