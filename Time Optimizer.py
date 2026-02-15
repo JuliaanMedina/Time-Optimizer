@@ -1,10 +1,33 @@
-    #V1.2 importamos datatime para manejar fechas automaticamente
-
 import json
 from datetime import datetime
-    # Tenemos que llamar desde el sistema operativo la fecha e importarla al codigo
 
-    # The time optimizer - Fase 1: El filtro de realidad
+# --- Herramientas --- (funciones)
+def cargar_datos(nombre_archivo):
+    """Esto nos va a cargar el historial de datos de la base de datos que hayamos puesto segun todos los registros, en caso de que no haya nada nos va a devolver una lista vacia."""
+    try:
+        with open(nombre_archivo, "r") as archivo:
+            return json.load(archivo)
+    except (FileNotFoundError, json.JSONDecodeError):
+        return []
+
+def guardar_datos(nombre_archivo, historial):
+    """"Esto y la opcion anterior hacen exactamente lo mismo que un guardado en los juegos de toda la vida pero pues dentro de nuestro codigo"""
+    with open(nombre_archivo, "w") as archivo:
+        json.dump(historial, archivo, indent=4)
+    print("\n[LOG]: Datos guardados correctamente en JSON.")
+          
+          
+def calcular_factor_energia(estado):
+    """Este ya lo que hace es indicarnos el multiplicador bajo el cual vamos a estar calculando la cantidad de tiempo "util" que realmente tenemos"""
+    if estado == "baja":
+        return 0.5
+    elif estado == "media":
+        return 0.75
+    else:
+        return 1.0
+    
+# Time optimizer --- Codigo base
+
 print("--- Bienvenido al Time Optimizer ---")
 
     # Datos fijos que podemos ajustar luego con un input
@@ -22,22 +45,16 @@ print(f"Tiempo libre para tus actividades diarias: {tiempo_restante} horas")
     # Aqui es donde entra el factor que cambia el proposito de la app
 estado_animo = input("¿Cómo está tu energia hoy? (opciones: 'alta', 'media', 'baja'): ").lower()
 
-if estado_animo == 'baja':        
-        # Si la energia es baja, el tiempo rinde la mitad que cuando estamos bien (factor 0.5)
-        tiempo_efectivo = tiempo_restante * 0.5
-        print(f"Alerta: Tu capacidad cognitiva está reducida. Tiempo efectivo disponible: {tiempo_efectivo} horas")
-            
-elif estado_animo == 'media':
-        # Si la energia es media, el tiempo rinde un 75% (factor 0.75), podemos realizar actividades que no sean muy demandantes
-        tiempo_efectivo = tiempo_restante * 0.75
-        print(f"Atención: Tu capacidad cognitiva está moderada. Tiempo efectivo disponible: {tiempo_efectivo} horas")
+# Aqui venimos a llamar a la funcion que acabamos de poner al inicio.
 
-else:
-        # Si la energia es alta, el tiempo rinde al 100% (factor 1)
-        tiempo_efectivo = tiempo_restante
-        print(f"Excelente: Tu capacidad cognitiva está óptima. Tiempo efectivo disponible: {tiempo_efectivo} horas")
-            
-    # Ahora que tenemos la base de la energia, podemos empezar a organizar las actividades
+factor = calcular_factor_energia(estado_animo)
+tiempo_efectivo = tiempo_restante * factor
+print(f"Tu capacidad cognitiva es {estado_animo}. Tiempo efectivo:{tiempo_efectivo} horas")
+
+
+#------------------------------------------------------------------------------------------------------------------------------------------------
+
+
 
 # --- Nuevo modulo: Selector de tareas o actividades ---
 
@@ -81,12 +98,10 @@ if datetime.now().hour >= 17:
     # --- FASE DE LECTURA Y ANÁLISIS ---
 print("\n--- Generando Reporte de Productividad ---")
 
-    # 1. Cargar datos existentes (si el archivo no existe o está mal, empezamos con lista vacía)
-try:
-    with open("seguimiento_energia.json", "r") as archivo:
-        historial = json.load(archivo)
-except (FileNotFoundError, json.JSONDecodeError):
-    historial = []
+
+# --- Fase de guardado modular ---
+archivo_db = "seguimiento_energia.json"
+historial = cargar_datos(archivo_db)
 
 # 2. Creamos el nuevo registro
 datos_entrada = {
@@ -98,12 +113,7 @@ datos_entrada = {
 
 # 3. Añadimos el nuevo registro a la lista que ya cargamos
 historial.append(datos_entrada)
-
-# 4. Guardamos TODA la lista actualizada (usamos "w" para sobrescribir con la lista legal)
-with open("seguimiento_energia.json", "w") as archivo:
-    json.dump(historial, archivo, indent=4)
-
-print("\n[LOG]: Datos guardados correctamente en JSON.")
+guardar_datos(archivo_db, historial)
 
 # --- FASE DE REPORTE---
 print("\n--- Generando Reporte de Productividad ---")
