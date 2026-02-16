@@ -16,8 +16,7 @@ def guardar_datos(nombre_archivo, historial):
     with open(nombre_archivo, "w") as archivo:
         json.dump(historial, archivo, indent=4)
     print("\n[LOG]: Datos guardados correctamente en JSON.")
-          
-          
+      
 def calcular_factor_energia(estado):
     """Este ya lo que hace es indicarnos el multiplicador bajo el cual vamos a estar calculando la cantidad de tiempo "util" que realmente tenemos"""
     if estado == "baja":
@@ -47,6 +46,75 @@ def obtener_energia_validada():
         if entrada in opciones:
             return entrada
         print(f"[!] '{entrada}' no es valido. Elige una de las 3 opciones.")
+
+def personalizar_actividades():
+    
+    """Permite al usuario borrar y añadir actividades segun su necesidad."""
+    archivo_tareas = "config_tareas.json"
+    
+    #Con esto cargamos la base de datos con la tareas ya existentes o una base de datos para las actividades nueva vacia.
+    tareas = cargar_datos(archivo_tareas)
+    
+    if not tareas:
+        tareas = {"alta": [], "media": [], "baja": []}
+    
+    while True:
+        #Con este while hacemos que no se salga del menu hasta que se le indique que lo haga.
+        print("\n--- Configuracion personalizada de actividades ---")
+        print("1. Continuar al Optimizer.")
+        print("2. Ver actividades actuales.")
+        print("3. Añadir nueva actividad.")
+        print("4. Borrar una actividad.")
+        print("5. Borrar todo y empezar de cero.")
+    
+        opcion = input("\nSelecciona una opcion: ")
+    
+        if opcion == "1":
+            print("\n[>>>] Cargando configuracion y entrando al Optimizer...")
+            break
+            #Este break lo que hace es romper el bucle y continuar con el programa.
+    
+        elif opcion == "2":
+            for categoria, lista in tareas.items():
+                print(f"Energia: {categoria.upper()}: {lista}")
+            
+        elif opcion == "3":
+            categoria = input("Que nivel de energia es necesario para realizar esta actividad? (alta/media/baja): ").lower()
+            if categoria in tareas:
+                nueva = input(f"Escribe la nueva actividad para {categoria}: ")
+                tareas[categoria].append(nueva)
+                guardar_datos(archivo_tareas, tareas)
+                print(f"[LOG]: '{nueva}' añadida.")
+            
+        elif opcion == "4":
+            categoria = input("¿De que categoria vamos a eliminar una actividad? (alta/media/baja):")
+            if categoria in tareas and tareas [categoria]:
+                for i, actividad in enumerate(tareas[categoria], 1):
+                    print(f"{i}. {actividad}")
+        
+                try:
+                    indice = int(input("\nIndicador de actividad a eliminar: ")) - 1
+                    eliminada = tareas[categoria].pop(indice)
+                    guardar_datos(archivo_tareas, tareas)
+                    print(f"[LOG]: '{eliminada}.")
+            
+                except (ValueError, IndexError):
+                    print("[!] Opcion no valida.")
+            else:
+                print(f"[!] Nada que borrar en {categoria}")
+            
+        elif opcion == "5":
+            confirmar = input("¿Estás seguro de borrar todas las actividades? (si/no): ").lower
+            if confirmar == 'si':
+                tareas = {"alta": [], "media": [], "baja": []}
+                guardar_datos(archivo_tareas, tareas)
+                print("[LOG]: Listas vaciadas.")
+                
+        else:
+            print(f"\n[!] '{opcion}' no es una opcion valida. Por favor, elige de 1 a 5.")
+            
+    return tareas
+    
 #-----------------------------------------------------------------------------------------------------------------------------
 
 
@@ -92,21 +160,29 @@ print(f" Debido a tu energia ({estado_animo}), esto equivale a {tiempo_efectivo:
 
 print("\n--- ¿Qué te gustaría hacer el dia de hoy? ---" )
 
-# Ahora vamos con lo siguiente a elegir una lista segun el estado de animo.
+#Selector de tareas dinamico
 
-if estado_animo == "alta": 
-    opciones = ["Trabajar codigo en VS code", "Laboratorio de AWS", "Estudiar un tema nuevo"]
+# Aqui usamos la funcion definida para el indice para gestionar las actividades.
+while True:
 
-elif estado_animo == "media":
-    opciones = ["Revisar documentacion", "Hacer tareas de SENA", "Llamar a algun amigo"]
+    catalogo_personal = personalizar_actividades()
+    #Este lo que hace es mostrarnos la lista de actividades que hay segun el nivel de energia que hayamos indicado.
+    opciones = catalogo_personal.get(estado_animo, [])
 
-else:
-    opciones = ["Dormir", "Ver algo, cualquier cosa", "Tiempo con Juanita"]
+    if not opciones:
+        print(f"\n[!] No tienes actividades registradas para energia {estado_animo}.")
+        print("Debes añadir al menos una actividad en esta categoria para continuar.")
+        
+    else:
+        #En case de que si hayan opciones entonces salimos del bucle y mostramos el menu de seleccion para seleccionar la actividad.
+        print(f"\n --- Tareas disponibles para energia {estado_animo} ---")
+
 
 # Con esto vamos a ennumerar las opciones que tengamos, segun el estado de animo que hayamos indicado
 
-for i, tarea in enumerate(opciones, 1):
-    print(f"{i}. {tarea}")
+        for i, tarea in enumerate(opciones, 1):
+            print(f"{i}. {tarea}")
+        break
     
 # Ahora el usuario va a tener que elegir
 
