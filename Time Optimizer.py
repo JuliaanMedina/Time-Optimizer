@@ -104,7 +104,7 @@ def personalizar_actividades():
                 print(f"[!] Nada que borrar en {categoria}")
             
         elif opcion == "5":
-            confirmar = input("¿Estás seguro de borrar todas las actividades? (si/no): ").lower
+            confirmar = input("¿Estás seguro de borrar todas las actividades? (si/no): ").lower()
             if confirmar == 'si':
                 tareas = {"alta": [], "media": [], "baja": []}
                 guardar_datos(archivo_tareas, tareas)
@@ -115,48 +115,36 @@ def personalizar_actividades():
             
     return tareas
     
-#-----------------------------------------------------------------------------------------------------------------------------
-
 
 
 # Time optimizer --- Codigo base
 
 print("--- Bienvenido al Time Optimizer ---")
 
-    # Datos fijos que podemos ajustar luego con un input
+
+
+#--- 1. BIENVENIDA Y CALCULO INICIAL
 horas_dias = 24
 trabajo_bpo = 9
 moto_transporte = 3
 sueno_ideal = 7
 
-    # Calculo bruto del tiempo libre
+# Calculo bruto del tiempo libre
 tiempo_obligatorio = trabajo_bpo + moto_transporte + sueno_ideal
 tiempo_restante = horas_dias - tiempo_obligatorio
 
 print(f"Tiempo libre para tus actividades diarias: {tiempo_restante} horas")
 
-    # Aqui es donde entra el factor que cambia el proposito de la app
+
+
+#--- 2. VALIDACION DE ENERGIA
 estado_animo = obtener_energia_validada()
-
 # Aqui venimos a llamar a la funcion que acabamos de poner al inicio.
-
 factor = calcular_factor_energia(estado_animo)
 
-# Aqui llamamos ahora a la nueva funcion que definimos para medir el tiempo que llevamos haciendo alguna tarea en especifico
-tiempo_real_dedicado = cronometrar_tarea()
-
-# Los numeros de los factores ya estan definidos en las funciones anteriormente
-tiempo_efectivo = tiempo_real_dedicado * factor
-
-print(f"\n[RESULTADO]: Trabajaste {tiempo_real_dedicado: .2f} horas reales. ")
-print(f" Debido a tu energia ({estado_animo}), esto equivale a {tiempo_efectivo: .2f} horas de progreso real.")
 
 
-#------------------------------------------------------------------------------------------------------------------------------------------------
-
-
-
-# --- Nuevo modulo: Selector de tareas o actividades ---
+#--- 3. SELECTOR DE TAREAS
 
 print("\n--- ¿Qué te gustaría hacer el dia de hoy? ---" )
 
@@ -184,7 +172,9 @@ while True:
             print(f"{i}. {tarea}")
         break
     
-# Ahora el usuario va a tener que elegir
+    
+
+# --- 4. SELECCION DE ACTIVIDAD
 
 try:
     seleccion = int(input("\nSelecciona una tarea: "))
@@ -194,18 +184,30 @@ except (ValueError, IndexError):
     print("Selección no valida, se asignará Actividad general.")
     tarea_realizada = "Actividad general"
     
-print(f" Has elegido: {tarea_realizada}")
-    
-# Consejo basado en mi situacion de Call center.
+print(f"\n >>> Has elegido: {tarea_realizada}")
 
+
+
+# --- 5. MEDICION DEL TIEMPO
+
+# Aqui llamamos ahora a la nueva funcion que definimos para medir el tiempo que llevamos haciendo alguna tarea en especifico
+print(f"\nIniciando cronometro para: {tarea_realizada}")
+tiempo_real_dedicado = cronometrar_tarea()
+
+# Los numeros de los factores ya estan definidos en las funciones anteriormente
+tiempo_efectivo = tiempo_real_dedicado * factor
+
+print(f"\n[RESULTADO]: Trabajaste {tiempo_real_dedicado: .2f} horas reales. ")
+print(f" Debido a tu energia ({estado_animo}), esto equivale a {tiempo_efectivo: .2f} horas de progreso real.")
+
+# Consejo basado en mi situacion de Call center.
 if datetime.now().hour >= 17:
     print("Recuerda que ya saliste, no hay ningun afán :D")
 
-#------------------------------------------------------------------------------------------------------------------------------
 
-    # --- FASE DE LECTURA Y ANÁLISIS ---
+
+# --- 6. GUARDADO Y REPORTE
 print("\n--- Generando Reporte de Productividad ---")
-
 
 # --- Fase de guardado modular ---
 archivo_db = "seguimiento_energia.json"
@@ -241,9 +243,9 @@ print(f"Sesiones registradas: {conteo}")
 print(f"Total acumulado: {total_horas} horas")
 print(f"Promedio: {promedio:.2f} horas/sesión")
 
-#-----------------------------------------------------------------------------------------------------------------------------
 
-# Nuevo modulo - Analizador de metas
+
+# --- 7. ANALIZADOR DE METAS
 
 meta_horas = 20
 progreso = (total_horas / meta_horas) * 100
@@ -258,3 +260,4 @@ elif progreso < 75:
     print("¡Vamos por la mitad del camino! Hay que seguir así.")
 else:
     print("Lo estamos logrando, estamos a nada de llegar a la meta ¡Sigue así!")
+    
