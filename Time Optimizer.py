@@ -1,4 +1,5 @@
 import json
+import time
 from datetime import datetime
 
 # --- Herramientas --- (funciones)
@@ -26,6 +27,22 @@ def calcular_factor_energia(estado):
     else:
         return 1.0
     
+def cronometrar_tarea():
+    """Va a medir el tiempo que va a pasar entre dos marcaciones de enter"""
+    input("\n >>> Presiona ENTER para empezar a trabajar :)")
+    inicio = time.time()
+    
+    input(">>> Trabajando... Presiona ENTER para detener el cronometro.")
+    fin = time.time()
+    
+    segundos = fin - inicio
+    horas = segundos / 3600 
+    return horas
+
+#-----------------------------------------------------------------------------------------------------------------------------
+
+
+
 # Time optimizer --- Codigo base
 
 print("--- Bienvenido al Time Optimizer ---")
@@ -48,8 +65,15 @@ estado_animo = input("¿Cómo está tu energia hoy? (opciones: 'alta', 'media', 
 # Aqui venimos a llamar a la funcion que acabamos de poner al inicio.
 
 factor = calcular_factor_energia(estado_animo)
-tiempo_efectivo = tiempo_restante * factor
-print(f"Tu capacidad cognitiva es {estado_animo}. Tiempo efectivo:{tiempo_efectivo} horas")
+
+# Aqui llamamos ahora a la nueva funcion que definimos para medir el tiempo que llevamos haciendo alguna tarea en especifico
+tiempo_real_dedicado = cronometrar_tarea()
+
+# Los numeros de los factores ya estan definidos en las funciones anteriormente
+tiempo_efectivo = tiempo_real_dedicado * factor
+
+print(f"\n[RESULTADO]: Trabajaste {tiempo_real_dedicado: .2f} horas reales. ")
+print(f" Debido a tu energia ({estado_animo}), esto equivale a {tiempo_efectivo: .2f} horas de progreso real.")
 
 
 #------------------------------------------------------------------------------------------------------------------------------------------------
