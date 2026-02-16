@@ -39,6 +39,14 @@ def cronometrar_tarea():
     horas = segundos / 3600 
     return horas
 
+def obtener_energia_validada():
+    """Con esto creamos un bucle que obliga al usuario a elegir una de las tres opciones"""
+    opciones = ["alta","media","baja"]
+    while True:
+        entrada = input("¿Como está tu energía el dia de hoy(alta, media, baja): ").lower()
+        if entrada in opciones:
+            return entrada
+        print(f"[!] '{entrada}' no es valido. Elige una de las 3 opciones.")
 #-----------------------------------------------------------------------------------------------------------------------------
 
 
@@ -60,7 +68,7 @@ tiempo_restante = horas_dias - tiempo_obligatorio
 print(f"Tiempo libre para tus actividades diarias: {tiempo_restante} horas")
 
     # Aqui es donde entra el factor que cambia el proposito de la app
-estado_animo = input("¿Cómo está tu energia hoy? (opciones: 'alta', 'media', 'baja'): ").lower()
+estado_animo = obtener_energia_validada()
 
 # Aqui venimos a llamar a la funcion que acabamos de poner al inicio.
 
@@ -147,7 +155,7 @@ conteo = len(historial)
 # El cambio está aquí adentro:
 for i, registro in enumerate(historial, 1):
     # Esto te mostrará el proceso paso a paso
-    print(f"Leyendo registro {i}: {registro['fecha']} | Energía: {registro['estado_animo']} | Horas: {registro['tiempo']}")
+    print(f"Leyendo registro {i}: {registro['fecha']} | Energía: {registro['estado_animo']} | Horas: {registro['tiempo']:.2f}")
     total_horas += registro["tiempo"]
 
 promedio = total_horas / conteo if conteo > 0 else 0
@@ -157,3 +165,20 @@ print(f"Sesiones registradas: {conteo}")
 print(f"Total acumulado: {total_horas} horas")
 print(f"Promedio: {promedio:.2f} horas/sesión")
 
+#-----------------------------------------------------------------------------------------------------------------------------
+
+# Nuevo modulo - Analizador de metas
+
+meta_horas = 20
+progreso = (total_horas / meta_horas) * 100
+
+print(f"\n--- PROGRESO HACIA LA META (MEJOR QUE EL 80% DEL MUNDO EN ALGO) ---")
+print(f"Meta: {meta_horas} horas de practica(estudio o trabajo).")
+print(f"Llevas el {progreso:.2f}% de nuestro objetivo")
+
+if progreso < 25:
+    print("¡Buen inicio! Todo experto comenzo desde tu misma posicion.")
+elif progreso < 75:
+    print("¡Vamos por la mitad del camino! Hay que seguir así.")
+else:
+    print("Lo estamos logrando, estamos a nada de llegar a la meta ¡Sigue así!")
