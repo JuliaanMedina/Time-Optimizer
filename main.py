@@ -37,9 +37,28 @@ def personalizar_actividades():
             categoria = input("Que nivel de energia es necesario para realizar esta actividad? (alta/media/baja): ").lower()
             if categoria in tareas:
                 nueva = input(f"Escribe la nueva actividad para {categoria}: ")
+                
+                #Actualización con la barra de progreso independiente
+                try:
+                    meta_horas = float(input(f"¿Cuál es tu meta en horas para dominar '{nueva}'?: "))
+                except ValueError:
+                    print("[!] Valor inválido. Se asignará una meta por defecto de 20 horas.")
+                    meta_horas = 20.0
+                    
+                # Guardar la actividad en su categoría
                 tareas[categoria].append(nueva)
                 guardar_datos(archivo_tareas, tareas)
-                print(f"[LOG]: '{nueva}' añadida.")
+                
+                # Guardar la meta independiente
+                archivo_metas = "metas_actividades.json"
+                metas = cargar_datos(archivo_metas)
+                if not isinstance(metas, dict):
+                    metas = {} #Con esto aseguramos que se abra un diccionario cuando el archivo sea nuevo
+                    
+                metas[nueva] = meta_horas
+                guardar_datos(archivo_metas, metas)
+                
+                print(f"[LOG]: '{nueva}' añadida con una meta de {meta_horas}h.")
                 
         elif opcion == "4":
             categoria = input("¿De que categoria vamos a eliminar una actividad? (alta/media/baja):")
@@ -217,8 +236,18 @@ def main():
 
     # --- 7. ANALIZADOR DE METAS
 
-    meta_horas = 20
-    progreso = (total_historico / meta_horas) * 100
+    archivo_metas = "metas_actividades.json"
+    metas_por_actividad = cargar_datos(archivo_metas)
+    if not isinstance(metas_por_actividad, dict):
+        metas_por_actividad = {}
+        
+    #Obtener la meta que asigna 20h si es una tarea antigua sin meta registrada
+    meta_especifica = metas_por_actividad.get(tarea_realizada, 20.0)
+    
+    #Calcular acumulado aislando estrictamente la tarea actual
+    total_tarea_especifica = sum(reg.get("tiempo", 0) for reg in historial if reg.get("tarea") == tarea_realizada)
+    
+    progreso = (total_tarea_especifica / meta_especifica) * 100
 
     # Parametros de la barra
     longitud_barra = 25 
@@ -229,7 +258,8 @@ def main():
     barra_visual = "█" * bloques_llenos + "-" * (longitud_barra - bloques_llenos)
 
     print("\n" + "="*50)
-    print(f"--- RUTA AL DOMINIO DE ESTA HABILIDAD (META: {meta_horas}h) ---")
+    print(f"--- PROGRESO EN: {tarea_realizada.upper()} ---")
+    print(f"Meta: {meta_especifica}h | Acumulado: {total_tarea_especifica:.2f}h")
     print(f"Progreso: [{barra_visual}] {progreso:.2f}%")
     print("="*50)
 
@@ -244,5 +274,5 @@ def main():
     else:
         print("Meta alcanzada. Estas en el 20% de la poblacion mundial. Eres oficialmente mejor que todos ellos")
 if __name__ == "__main__":
-    main() 
-    
+    main()
+
