@@ -69,8 +69,19 @@ def personalizar_actividades():
                 try:
                     indice = int(input("\nIndicador de actividad a eliminar: ")) - 1
                     eliminada = tareas[categoria].pop(indice)
+                    
+                    #1. Guardar cambios en el catalogo principal
                     guardar_datos(archivo_tareas, tareas)
-                    print(f"[LOG]: '{eliminada}.")
+                    
+                    #2. --- Nueva lógica: Purga de meta asociada ---
+                    archivo_metas = "metas_actividades.json"
+                    metas = cargar_datos(archivo_metas)
+                    
+                    if isinstance(metas, dict) and eliminada in metas:
+                        del metas[eliminada]
+                        guardar_datos(archivo_metas, metas)
+                        
+                    print(f"[LOG]: Actividad '{eliminada}' y su meta en horas han sido eliminadas del sistema.")
                 
                 except (ValueError, IndexError):
                     print("[!] Opcion no valida.")
