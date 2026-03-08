@@ -89,11 +89,22 @@ def personalizar_actividades():
                 print(f"[!] Nada que borrar en {categoria}")
                 
         elif opcion == "5":
-            confirmar = input("¿Estás seguro de borrar todas las actividades? (si/no): ").lower()
+            print("\n[¡ADVERTENCIA!]")
+            confirmar = input("¿Estás seguro de borrar absolutamente todo? Se perderán las actividades y sus metas (si/no): ").lower()
+            
             if confirmar == 'si':
+                #1. Formateo de las habilidades.
                 tareas = {"alta": [], "media": [], "baja": []}
                 guardar_datos(archivo_tareas, tareas)
-                print("[LOG]: Listas vaciadas.")
+                
+                #2. Formateo de barras de progreso.
+                archivo_metas = "metas_actividades.json"
+                metas_vacias = {}
+                guardar_datos(archivo_metas, metas_vacias)
+                
+                print("[LOG]: Sistemas vaciados. Listas de actividades y metas han sido vaciadas")
+            else:
+                print("[LOG]: Operación abortada. Tus datos están guardados.")
                     
         else:
             print(f"\n[!] '{opcion}' no es una opcion valida. Por favor, elige de 1 a 5.")
