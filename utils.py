@@ -12,10 +12,19 @@ def calcular_factor_energia(estado):
 def obtener_energia_validada():
     opciones = ["alta","media","baja"]
     while True:
-        entrada = input("¿Como está tu energía el dia de hoy(alta, media, baja): ").lower()
-        if entrada in opciones:
-            return entrada
-        print(f"[!] '{entrada}' no es valido. Elige una de las 3 opciones.")
+        print("\n--- Seleccione nivel de energía ---")
+        print("1. Alta")
+        print("2. Media")
+        print("3. Baja")
+        print("\n0. Volver")
+        
+        opcion = input("\n>>> ")
+        
+        if opcion == "1": return "alta"
+        if opcion == "2": return "media"
+        if opcion == "3": return "baja"
+        if opcion == "0": return "VOLVER"
+        print(f"[!] '{opcion}' no es válida. Intente de nuevo.")
 
 def cronometrar_tarea():
     input("\n >>> Presiona ENTER para empezar a trabajar :)")

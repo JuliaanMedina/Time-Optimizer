@@ -2,7 +2,33 @@ from datetime import datetime
 from database import cargar_datos, guardar_datos, limpiar_registros_vacios 
 from utils import limpiar_pantalla, calcular_factor_energia, obtener_energia_validada, cronometrar_tarea
 
+def mostrar_portada():
+    """Despliega la interfaz gráfica de texto (TUI) inicial de la aplicación."""
+    limpiar_pantalla()
+    print("================================================================")
+    print(r"""
+  _______ _                 ____        _   _           _  
+ |__   __(_)               / __ \      | | (_)         (_)  
+    | |   _ _ __ ___   ___| |  | |_ __ | |_ _ _ __ ___  _ _______ _ __ 
+    | |  | | '_ ` _ \ / _ \ |  | | '_ \| __| | '_ ` _ \| |_  / _ \ '__|
+    | |  | | | | | | |  __/ |__| | |_) | |_| | | | | | | |/ /  __/ |   
+    |_|  |_|_| |_| |_|\___|\____/| .__/ \__|_|_| |_| |_|_/___\___|_|   
+                                 | |                                   
+                                 |_|                                   
+    """)
+    print("================================================================")
+    print("               v1.0 - Single User Local Edition               ")
+    print("================================================================")
+    print("\n   [OBJETIVO]: Cuantificar, medir y optimizar el tiempo libre.")
+    print("   [SISTEMA]:  El call center es temporal, el código es eterno.")
+    print("\n" + "-"*64)
+    
+    # Este input actúa como una barrera de contención. 
+    # Congela la pantalla hasta que el usuario decida avanzar.
+    input("\n              >>> Presiona ENTER para iniciar <<<")
+
 def personalizar_actividades():
+    
         
     """Permite al usuario borrar y añadir actividades segun su necesidad."""
     archivo_tareas = "config_tareas.json"
@@ -14,6 +40,7 @@ def personalizar_actividades():
         tareas = {"alta": [], "media": [], "baja": []}
         
     while True:
+        limpiar_pantalla()
         #Con este while hacemos que no se salga del menu hasta que se le indique que lo haga.
         print("\n--- Configuracion personalizada de actividades ---")
         print("1. Continuar al Optimizer.")
@@ -21,26 +48,58 @@ def personalizar_actividades():
         print("3. Añadir nueva actividad.")
         print("4. Borrar una actividad.")
         print("5. Borrar todo y empezar de cero.")
-        
+        print("\n0. Volver.")
+
         opcion = input("\nSelecciona una opcion: ")
         
         if opcion == "1":
-            print("\n[>>>] Cargando configuracion y entrando al Optimizer...")
-            break
-            #Este break lo que hace es romper el bucle y continuar con el programa.
+            return "CONTINUAR"
+                
+        if opcion == "0": 
+            return "VOLVER"
         
         elif opcion == "2":
-            for categoria, lista in tareas.items():
-                print(f"Energia: {categoria.upper()}: {lista}")
+            limpiar_pantalla()
+            print("\n--- Catálogo de actividades registradas --- ")
+            for categoría, lista in tareas.items():
+                print(f"\nENERGÍA {categoría.upper()}:")
+                if lista:
+                    print(f" > {', '.join(lista)}")
+                else:
+                    print(" > (Vacio)")
+                    
+            input("\n[<<<] Presiona ENTER para volver al menú...")
                 
         elif opcion == "3":
-            categoria = input("Que nivel de energia es necesario para realizar esta actividad? (alta/media/baja): ").lower()
+            limpiar_pantalla()
+            
+            print("--- Añadir nueva actividad ---")
+            print("\nPulse '0' para volver al lobby.")
+            
+            categoria = input("\nQue nivel de energia es necesario para realizar esta actividad? (alta/media/baja): ").lower()
+            
+            if categoria == "0":
+                continue
+            
             if categoria in tareas:
+                limpiar_pantalla()
+                print("\nPulse '0' para volver al atrás.")
                 nueva = input(f"Escribe la nueva actividad para {categoria}: ")
+                
+                if nueva == "0":
+                    continue
                 
                 #Actualización con la barra de progreso independiente
                 try:
-                    meta_horas = float(input(f"¿Cuál es tu meta en horas para dominar '{nueva}'?: "))
+                    limpiar_pantalla()
+                    print("\nPulse '0' para volver al atrás.")
+                    meta_input = input(f"¿Cuál es tu meta en horas para dominar '{nueva}'?: ")
+                    
+                    if meta_input == "0":
+                        continue
+                    
+                    meta_horas = float(meta_input)
+                    
                 except ValueError:
                     print("[!] Valor inválido. Se asignará una meta por defecto de 20 horas.")
                     meta_horas = 20.0
@@ -58,39 +117,79 @@ def personalizar_actividades():
                 metas[nueva] = meta_horas
                 guardar_datos(archivo_metas, metas)
                 
-                print(f"[LOG]: '{nueva}' añadida con una meta de {meta_horas}h.")
+                print(f"[LOG]: '{nueva}' guardada con exito.")
+                input("Presiona ENTER para continuar...")
+            else:
+                print(f"\n[LOG]: La categoria '{categoria}' no existe.")
+                input("Presiona ENTER para reintentar...")
                 
         elif opcion == "4":
+            
+            limpiar_pantalla()
+            print("\n" + "="*40)
+            print("     --- Borrar actividad ---")
+            print("="*40)
+            print("\n[INFO]: Escribe '0' para volver atrás.")
+            
             categoria = input("¿De que categoria vamos a eliminar una actividad? (alta/media/baja):")
+            
+            if categoria == "0":
+                continue
+            
             if categoria in tareas and tareas [categoria]:
                 for i, actividad in enumerate(tareas[categoria], 1):
                     print(f"{i}. {actividad}")
             
                 try:
-                    indice = int(input("\nIndicador de actividad a eliminar: ")) - 1
-                    eliminada = tareas[categoria].pop(indice)
+                    seleccion = input("\nSeleccione la actividad a borrar o 0 para volver atrás: ").strip()
                     
-                    #1. Guardar cambios en el catalogo principal
-                    guardar_datos(archivo_tareas, tareas)
+                    if seleccion == "0":
+                        continue
                     
-                    #2. --- Nueva lógica: Purga de meta asociada ---
-                    archivo_metas = "metas_actividades.json"
-                    metas = cargar_datos(archivo_metas)
+                    indice = int(seleccion) - 1
+                    if 0<= indice < len(tareas[categoria]):
+                        eliminada = tareas[categoria].pop(indice)
+                                        
+                        #1. Guardar cambios en el catalogo principal
+                        guardar_datos(archivo_tareas, tareas)
                     
-                    if isinstance(metas, dict) and eliminada in metas:
-                        del metas[eliminada]
-                        guardar_datos(archivo_metas, metas)
+                        #2. --- Nueva lógica: Purga de meta asociada ---
+                        archivo_metas = "metas_actividades.json"
+                        metas = cargar_datos(archivo_metas)
+                    
+                        if isinstance(metas, dict) and eliminada in metas:
+                            del metas[eliminada]
+                            guardar_datos(archivo_metas, metas)
                         
-                    print(f"[LOG]: Actividad '{eliminada}' y su meta en horas han sido eliminadas del sistema.")
-                
-                except (ValueError, IndexError):
-                    print("[!] Opcion no valida.")
+                        print(f"[LOG]: Actividad '{eliminada}' y su meta en horas han sido eliminadas del sistema.")
+                    
+                    else:
+                        print("\n[!] Numero fuera de rango.")
+                except ValueError:
+                    print("\n[!] Entrada no valida. Debe ser un numero.")
+                    
+                input("\nPresiona ENTER para continuar...")
+            
             else:
-                print(f"[!] Nada que borrar en {categoria}")
+                print(f"\n[!] No hay actividades para borrar en '{categoria}'.")
+                input("\nPresiona ENTER para volver...")            
                 
         elif opcion == "5":
-            print("\n[¡ADVERTENCIA!]")
-            confirmar = input("¿Estás seguro de borrar absolutamente todo? Se perderán las actividades y sus metas (si/no): ").lower()
+            
+            limpiar_pantalla()
+            
+            print("\n" + "!"*45)
+            print("  --- PROTOCOLO DE BORRADO TOTAL ---")
+            print("!"*45)
+            print("\n[ADVERTENCIA]: Esta acción eliminará:")
+            print("1. Todas tus actividades personalizadas.")
+            print("2. Todas las metas y progresos de horas.")
+            print("\n[INFO]: Escribe '0' para cancelar y volver.")
+            
+            confirmar = input("¿Estás seguro de borrar absolutamente todo? Se perderán las actividades y sus metas (si/no): ").strip()
+            
+            if confirmar == "0":
+                continue
             
             if confirmar == 'si':
                 #1. Formateo de las habilidades.
@@ -108,101 +207,45 @@ def personalizar_actividades():
                     
         else:
             print(f"\n[!] '{opcion}' no es una opcion valida. Por favor, elige de 1 a 5.")
-                
-    return tareas
 
-# Time optimizer --- Codigo base
-
-def main():
+def ejecutar_optimizer(estado_animo, factor):
+    
     limpiar_pantalla()
-    print("--- Bienvenido al Time Optimizer ---")
-
-
-
-    #--- 1. BIENVENIDA Y CALCULO INICIAL
-    horas_dias = 24
-    trabajo_bpo = 9
-    moto_transporte = 3
-    sueno_ideal = 7
-
-    # Calculo bruto del tiempo libre
-    tiempo_obligatorio = trabajo_bpo + moto_transporte + sueno_ideal
-    tiempo_restante = horas_dias - tiempo_obligatorio
-
-    print(f"\nTiempo libre para tus actividades diarias: {tiempo_restante} horas")
-
-
-
-    #--- 2. VALIDACION DE ENERGIA
-    estado_animo = obtener_energia_validada()
-    # Aqui venimos a llamar a la funcion que acabamos de poner al inicio.
-    factor = calcular_factor_energia(estado_animo)
-
-
-
-    #--- 3. SELECTOR DE TAREAS
-    limpiar_pantalla()
-    print("\n--- ¿Qué te gustaría hacer el dia de hoy? ---" )
-
-    #Selector de tareas dinamico
-
-    # Aqui usamos la funcion definida para el indice para gestionar las actividades.
-    while True:
-
-        catalogo_personal = personalizar_actividades()
-        #Este lo que hace es mostrarnos la lista de actividades que hay segun el nivel de energia que hayamos indicado.
-        opciones = catalogo_personal.get(estado_animo, [])
-
-        if not opciones:
-            print(f"\n[!] No tienes actividades registradas para energia {estado_animo}.")
-            print("Debes añadir al menos una actividad en esta categoria para continuar.")
-                
-        else:
-            #En case de que si hayan opciones entonces salimos del bucle y mostramos el menu de seleccion para seleccionar la actividad.
-            print(f"\n --- Tareas disponibles para energia {estado_animo} ---")
-
-
-    # Con esto vamos a ennumerar las opciones que tengamos, segun el estado de animo que hayamos indicado
-
-            for i, tarea in enumerate(opciones, 1):
-                print(f"{i}. {tarea}")
-            break
-            
-            
-
-    # --- 4. SELECCION DE ACTIVIDAD
-
+    #Aqui cargamos las tareas para la sesión
+    tareas = cargar_datos("config_tareas.json")
+    opciones = tareas.get(estado_animo, [])
+    
+    if not opciones:
+        print(f"\n [!] No hay tareas para energia {estado_animo}.")
+        print("Debes añadir actividades en el Lobby para continuar.")
+        input("\nPresion ENTER para volver al Lobby...")
+        return "VOLVER" 
+        
+    print(f"\n --- Tareas disponibles para energia {estado_animo} ---")
+    print("\n0. Volver")
+    for i, tarea in enumerate(opciones, 1):
+        print(f"{i}. {tarea}")
+        
     try:
-        seleccion = int(input("\nSelecciona una tarea: "))
-        tarea_realizada = opciones[seleccion - 1] # Restamos 1 porque las listas empiezan en 0
-            
-    except (ValueError, IndexError): 
-        print("Selección no valida, se asignará Actividad general.")
-        tarea_realizada = "Actividad general"
-            
-    print(f"\n >>> Has elegido: {tarea_realizada}")
-
-
-
-    # --- 5. MEDICION DEL TIEMPO
+        entrada = input("\nSeleccione una tarea (o 0 para volver): ").strip()
+        if entrada == "0":
+            return "VOLVER"
+        
+        seleccion = int(entrada)
+        tarea_realizada = opciones[seleccion - 1]
+    
+    except (ValueError, IndexError):
+        print("\n[!] Selección no valida. Volviendo al lobby...")
+        input("Presiona ENTER")
+        return "VOLVER"
+        
+    # 3. El cronometro
     limpiar_pantalla()
-    # Aqui llamamos ahora a la nueva funcion que definimos para medir el tiempo que llevamos haciendo alguna tarea en especifico
     print(f"\nIniciando cronometro para: {tarea_realizada}")
-    tiempo_real_dedicado = cronometrar_tarea()
-
-    # Los numeros de los factores ya estan definidos en las funciones anteriormente
-    tiempo_efectivo = tiempo_real_dedicado * factor
-
-    print(f"\n[RESULTADO]: Trabajaste {tiempo_real_dedicado: .2f} horas reales. ")
-    print(f" Debido a tu energia ({estado_animo}), esto equivale a {tiempo_efectivo: .2f} horas de progreso real.")
-
-    # Consejo basado en mi situacion de Call center.
-    if datetime.now().hour >= 17:
-        print("Recuerda que ya saliste, no hay ningun afán :D")
-
-
-
-    # --- 6. GUARDADO Y REPORTE
+    tiempo_real = cronometrar_tarea()
+    tiempo_efectivo = tiempo_real * factor
+    
+    # 4. Reporte y metas
     print("\n--- Generando Reporte de Productividad ---")
 
     # --- Fase de guardado modular ---
@@ -244,7 +287,7 @@ def main():
     else:
         print("No hay sesiones registradas el dia de hoy.")
 
-    #Calculos totales (de todo el historial)
+            #Calculos totales (de todo el historial)
     total_historico = sum(reg["tiempo"] for reg in historial)
     total_hoy = sum(reg["tiempo"] for reg in sesiones_hoy)
 
@@ -256,7 +299,7 @@ def main():
 
 
 
-    # --- 7. ANALIZADOR DE METAS
+            # --- 7. ANALIZADOR DE METAS
 
     archivo_metas = "metas_actividades.json"
     metas_por_actividad = cargar_datos(archivo_metas)
@@ -295,6 +338,58 @@ def main():
         print("Estamos a nada. El 80% de las personas ya se rindieron tu no.")
     else:
         print("Meta alcanzada. Estas en el 20% de la poblacion mundial. Eres oficialmente mejor que todos ellos")
+
+    input("\nCiclo finalizado. Presiona ENTER para volver al lobby.")                
+
+def main():
+    while True:    
+        #1. Despliegue de la portada gráfica
+        mostrar_portada()
+        
+        while True:
+            #2. Bienvenida y datos iniciales
+            limpiar_pantalla()
+
+
+
+            #--- 1. BIENVENIDA Y CALCULO INICIAL
+            horas_dias = 24
+            trabajo_bpo = 9
+            moto_transporte = 3
+            sueno_ideal = 7
+
+            # Calculo bruto del tiempo libre
+            tiempo_obligatorio = trabajo_bpo + moto_transporte + sueno_ideal
+            tiempo_restante = horas_dias - tiempo_obligatorio
+
+            print(f"\nTiempo libre para tus actividades diarias: {tiempo_restante} horas")
+
+
+
+            #--- 2. VALIDACION DE ENERGIA
+            estado_animo = obtener_energia_validada()
+            
+            if estado_animo == "VOLVER":
+            #Este break rompe el bucle y devuelve al while anterior
+                break
+            
+            
+            # Aqui venimos a llamar a la funcion que acabamos de poner al inicio.
+            factor = calcular_factor_energia(estado_animo)
+            
+            while True:
+                #Mostramos el lobby
+                decision = personalizar_actividades()
+                
+                if decision == "VOLVER":
+                   break
+                
+                if decision == "CONTINUAR":
+                    resultado = ejecutar_optimizer(estado_animo, factor)    
+                    
+                    if resultado == "VOLVER":
+                        continue
+                    
 if __name__ == "__main__":
     main()
 
